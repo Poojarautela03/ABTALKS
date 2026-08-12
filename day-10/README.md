@@ -8,7 +8,7 @@ Turn standalone preprocessing and similarity-scoring code into three cleanly sep
 
 ## 🏗️ Architecture
 
-![NLP pipeline architecture](architecture-diagram.png)
+![NLP pipeline architecture](nlp_pipeline_architecture.png)
 
 A raw query flows into `PreprocessingModule` for cleaning and tokenization, then into `VectorizerModule` (which is also fit on the corpus) for TF-IDF vectorization and cosine similarity scoring, producing a ranked list of results.
 
