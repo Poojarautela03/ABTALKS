@@ -28,7 +28,7 @@ Found and documented three specific examples where fixed-size chunking split a s
 
 ## 🖼️ Chunking with overlap
 
-chunking_strategies_overlap.png
+![Chunking with overlap diagram](chunking_strategies_overlap.png)
 
 The shaded regions show the overlap shared between adjacent chunks — this is what preserves meaning when a sentence gets split across a boundary.
 
