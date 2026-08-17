@@ -25,7 +25,7 @@ Without RAG:
 
 ```text
 User Query → LLM → Answer
-```
+
 With RAG:
 
 User Query
