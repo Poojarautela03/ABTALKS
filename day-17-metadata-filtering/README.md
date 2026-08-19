@@ -1,36 +1,120 @@
-# Day 17 — Improve RAG Precision with Metadata Filtering 🎯
+# 🚀 Day 17 — Improve RAG Precision with Metadata Filtering
 
-Added structured metadata filtering on top of my Day 15/16 RAG pipeline to measure whether constraining retrieval by category and date improves precision over pure vector similarity search.
+## 📌 Overview
 
-## 🎯 Objective
+Day 17 focused on improving **RAG retrieval precision** using metadata filtering.
 
-Pure vector similarity is context-blind — it can't distinguish a 2020 document from a 2024 one, or a technical reference from a marketing overview. Metadata filtering adds structured constraints on top of vector search so retrieval returns the *right type* of document, not just the most similar one.
-
-## 🏗️ Approach
-
-- Note: used **Google Gemini** (`gemini-embedding-001` + `gemini-3.6-flash`) instead of OpenAI due to API quota limits — same methodology, different provider
-- Restructured the knowledge base so each document carries metadata: `source`, `category`, `date`, and `document_type`, alongside the text content
-- Paired metadata with embeddings by index position (FAISS's flat index has no native metadata support, so a parallel metadata list keyed by vector index was used)
-- Built `filtered_retrieve(query, filters, top_k)` — over-fetches a larger candidate pool from FAISS, then applies metadata filters as a post-filter, then trims to `top_k`
-- Implemented a **category filter** (restrict to a specified category string) and a **date filter** (exclude documents older than a configurable cutoff)
-- Ran 5 queries with filters active and the same 5 without, comparing retrieved chunks side by side
-
-## 📊 Findings
-
-Unfiltered retrieval sometimes surfaced documents that were semantically similar but categorically wrong — e.g. a marketing roadmap document ranking high for a technical query purely due to shared vocabulary. Filtered retrieval consistently excluded these, staying confined to the genuinely relevant document type or category for each query.
-
-## 🏛️ Architecture Update
-
-The Day 15 architecture had a single "FAISS index search" step. The upgraded pipeline inserts a metadata filter stage between vector search and prompt construction:
-
-`Query → Embed → FAISS search (over-fetch pool) → Metadata filter → Top-k selection → Prompt template → LLM`
-
-This is a **post-filtering** approach — FAISS still ranks purely by vector similarity, and filtering happens afterward on the candidate pool. A more scalable production approach would push filters into the vector database itself (pre-filtering, as supported by systems like Pinecone or Weaviate), but FAISS's flat index has no native metadata support, making post-filtering the practical choice at this scale.
-
-## ⚠️ Two Edge Cases This Still Can't Handle
-
-1. **Missing metadata fields** — a document ingested without a `category` or `date` field is silently excluded from any filtered search (the equality check fails silently on a missing key), with no visible warning that a potentially relevant document was dropped.
-2. **Conflicting or multi-valued categories** — this implementation assumes one category per document. A document that genuinely spans two categories (e.g. a pricing announcement that's both "product" and "finance") can only be tagged with one, making it invisible to filtered searches on the other — a limitation that would need list-based tags and "any-match" filter logic to properly resolve.
+Vector search retrieves documents based on semantic similarity, but it may return irrelevant documents because it does not consider structured information like **date, category, or document type**.
 
 ---
-*Day 17 of the ABTalks 60-day AI challenge — Artificial Intelligence track*
+
+## 🎯 Objectives
+
+* Add metadata: `source`, `category`, `date`, `document_type`
+* Store metadata with embeddings
+* Implement `filtered_retrieve()`
+* Add category and date filters
+* Compare filtered vs unfiltered retrieval
+* Identify limitations
+
+---
+
+## 🔎 Metadata Example
+
+```python
+Document(
+    page_content="Machine learning models...",
+    metadata={
+        "source": "ml_guide.pdf",
+        "category": "machine_learning",
+        "date": "2024-06-15",
+        "document_type": "technical"
+    }
+)
+```
+
+---
+
+## ⚙️ Filtered Retrieval
+
+```python
+def filtered_retrieve(query, filters=None):
+    results = vectorstore.similarity_search(query, k=10)
+
+    if not filters:
+        return results
+
+    filtered = []
+
+    for doc in results:
+        metadata = doc.metadata
+        match = True
+
+        if "category" in filters:
+            match &= metadata.get("category") == filters["category"]
+
+        if "date_after" in filters:
+            match &= metadata.get("date", "") >= filters["date_after"]
+
+        if match:
+            filtered.append(doc)
+
+    return filtered
+```
+
+### Example
+
+```python
+filters = {
+    "category": "machine_learning",
+    "date_after": "2024-01-01"
+}
+
+results = filtered_retrieve(
+    "Recent ML techniques",
+    filters
+)
+```
+
+---
+
+## 🧪 Comparison
+
+| Retrieval       | Result                            |
+| --------------- | --------------------------------- |
+| Without filters | More broad/irrelevant results     |
+| With filters    | More focused and relevant results |
+
+Five queries were tested with and without metadata filters. Filtering improved relevance by restricting results to the required **category and date range**.
+
+---
+
+## ⚠️ Limitations
+
+**1. Missing metadata:**
+Documents with incomplete metadata may be incorrectly excluded.
+
+**2. Conflicting categories:**
+A document can belong to multiple categories, which simple equality filtering may not handle correctly.
+
+---
+
+## 🛠️ Tech Stack
+
+**Python · LangChain · FAISS · OpenAI API**
+
+---
+
+## 💡 Key Learning
+
+> **Vector similarity finds semantically similar documents, while metadata filtering ensures they also satisfy structured constraints.**
+
+This makes the RAG pipeline more precise and controlled.
+
+---
+
+## ✅ Status
+
+**ABTalks 60-Day AI Challenge — Day 17**
+**Focus:** Advanced Retrieval with Metadata Filtering
+**Status:** ✅ Completed
