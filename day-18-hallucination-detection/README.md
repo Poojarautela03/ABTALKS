@@ -29,11 +29,16 @@ The four signals combine into a confidence score (1.0 = no flags, 0.0 = all four
 
 ## 📊 Results
 
-- **No-context hallucination rate:** [fill in with your actual percentage]
-- **RAG hallucination rate:** [fill in with your actual percentage]
-- **Reduction:** [fill in the percentage-point difference]
+| Condition | Correct | Partial | Hallucinated |
+|---|---|---|---|
+| No context | 15/20 (75.0%) | 3/20 (15.0%) | 2/20 (10.0%) |
+| With RAG | 20/20 (100.0%) | 0/20 (0.0%) | 0/20 (0.0%) |
 
-[Add 1-2 sentences on your most interesting specific example — e.g. how the model handled the fictional "Nimbus Robotics" and "Zylotech Dynamics" questions differently with and without RAG.]
+- **No-context hallucination rate:** 10.0%
+- **RAG hallucination rate:** 0.0%
+- **Reduction:** 10.0 percentage points
+
+The two fictional-company questions ("Who founded Nimbus Robotics?" and "Who founded Zylotech Dynamics?") were the clearest fabrication cases in the no-context condition — the model confidently invented plausible-sounding founder names and details for companies that don't exist. With RAG, the retrieved context explicitly stated these were fictional test companies with no real founder, and the model correctly reported that instead of fabricating an answer. This is the sharpest evidence in the dataset that grounding doesn't just reduce paraphrasing errors — it can fully prevent outright invention when the retrieved context is unambiguous.
 
 ## 💡 Key Learning
 
