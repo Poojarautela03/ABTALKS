@@ -49,7 +49,9 @@ Same answers. Same sources. Same confidence scores. Structural cleanup, zero beh
 
 ## ⚙️ Tech Stack
 
-`Python` · `FastAPI` · `pytest` · `python-dotenv` · `matplotlib` (architecture diagram)
+`Python` · `FastAPI` · `pytest` · `python-dotenv` · `matplotlib`
+<img width="1089" height="740" alt="image" src="https://github.com/user-attachments/assets/230a9781-951e-4219-8d72-d0a4f2777c8d" />
+
 
 ## 🚀 Run It Yourself
 
