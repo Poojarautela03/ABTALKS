@@ -230,10 +230,5 @@ This turns AI quality from a subjective judgement into an **engineering feedback
 
 ---
 
-## 🔗 Project
-
-**GitHub:** Add your repository URL here
-
-**Notebook:** Add your Colab URL here
 
 **Challenge:** ABTalks 60-Day AI Challenge — Day 29
